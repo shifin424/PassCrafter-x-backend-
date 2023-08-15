@@ -25,15 +25,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const savedPasswordSchema = new mongoose_1.Schema({
-    appName: {
-        type: String
-    },
-    userName: {
-        type: String
-    },
-    password: {
-        type: String
-    }
+    appName: String,
+    userName: String,
+    password: String,
 });
 const passwordSchema = new mongoose_1.Schema({
     userId: {
@@ -41,7 +35,7 @@ const passwordSchema = new mongoose_1.Schema({
         ref: 'User',
         required: true,
     },
-    savedPassword: [savedPasswordSchema]
+    savedPassword: [savedPasswordSchema],
 });
 exports.default = mongoose_1.default.model("Password", passwordSchema);
 //# sourceMappingURL=passwordSchema.js.map
