@@ -6,38 +6,44 @@ dotenv.config();
 import {
   create,
   findOne,
+  UserFindById as findUserById,
+  savePassword,
+  PasswordFindById as findUserByIds
 } from "../../repositories/userRepositories/userRespositories";
 import { IUser } from "../../models/userSchema/userSchema";
+
+
+
+
 
 export const registerUser = async (req: Request, res: Response) => {
   const { userName, email, password }: IUser = req.body;
 
   try {
-    // Check if the email already exists
     const existingUser = await findOne(email);
     if (existingUser) {
       return res.status(400).json({ error: "Email already exists" });
     }
 
-    // Hash the password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create and save the user
     const userData: any = { userName, email, password: hashedPassword };
     const newUser = await create(userData);
 
-    // Create JWT token
     const token = jwt.sign({ userId: newUser._id }, process.env.SECRET_KEY, {
       expiresIn: "7d",
     });
 
-    res.status(201).json({ user: newUser.userName, token });
+    res.status(201).json({ user: newUser.userName,  token: `Bearer ${token}`});
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Failed to register user" });
   }
 };
+
+
+
 
 export const userLogin = async (req: Request, res: Response) => {
   const { email, password }: IUser = req.body;
@@ -60,8 +66,61 @@ export const userLogin = async (req: Request, res: Response) => {
       }
     );
 
-    res.status(200).json({ user: existingUser.userName, token });
+    res.status(200).json({ user: existingUser.userName,  token: `Bearer ${token}`});
   } catch (error) {
     res.status(500).json({ error: "Failed to login User" });
   }
 };
+
+
+
+
+export const savedPassword = async (req: any, res: Response) => {
+  try {
+    const userId = req.user.userId;
+    const { appName, userName, password } = req.body;
+
+    const user = await findUserById(userId);
+    console.log(1)
+    if(!user){
+      res.status(400).json({error:"No User Found"})
+    }
+    console.log(2)
+    const savedPasswordData:any = {
+      appName,
+      userName,
+      password,
+    };
+
+    await savePassword(userId, savedPasswordData);
+console.log(3);
+
+    res.status(201).json({ message: 'Saved password successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+export const fetchSavedData = async (req: any, res: Response) =>{
+  try{
+
+    const userId = req.user.userId
+    console.log(userId)
+    const user: any = await findUserByIds(userId)
+    if(!user){
+      res.status(400).json({error:"No User Found"})
+    }
+    const savedPass = user.savedPassword.map((item: any) => ({
+      userName: item.userName,
+      appName: item.appName,
+      password: item.password
+    }));
+
+    res.status(200).json(savedPass);
+  }catch(error){
+    console.log(error)
+    res.status(400).json({error:"Internal server error"})
+  }
+}
