@@ -8,17 +8,15 @@ import {
   findOne,
   UserFindById as findUserById,
   savePassword,
-  PasswordFindById as findUserByIds
+  findPasswordsByUserId
 } from "../../repositories/userRepositories/userRespositories";
 import { IUser } from "../../models/userSchema/userSchema";
 
 
 
 
-
 export const registerUser = async (req: Request, res: Response) => {
   const { userName, email, password }: IUser = req.body;
-
   try {
     const existingUser = await findOne(email);
     if (existingUser) {
@@ -49,6 +47,7 @@ export const userLogin = async (req: Request, res: Response) => {
   const { email, password }: IUser = req.body;
   try {
     const existingUser = await findOne(email);
+    console.log(existingUser)
     if (!existingUser) {
       return res.status(400).json({ error: "Email does not exist" });
     }
@@ -85,7 +84,6 @@ export const savedPassword = async (req: any, res: Response) => {
     if(!user){
       res.status(400).json({error:"No User Found"})
     }
-    console.log(2)
     const savedPasswordData:any = {
       appName,
       userName,
@@ -93,7 +91,6 @@ export const savedPassword = async (req: any, res: Response) => {
     };
 
     await savePassword(userId, savedPasswordData);
-console.log(3);
 
     res.status(201).json({ message: 'Saved password successfully' });
   } catch (error) {
@@ -103,24 +100,21 @@ console.log(3);
 };
 
 
-export const fetchSavedData = async (req: any, res: Response) =>{
-  try{
+export const fetchSavedData = async (req: any, res: Response) => {
+  try {
+    const userId = req.user.userId;
 
-    const userId = req.user.userId
-    console.log(userId)
-    const user: any = await findUserByIds(userId)
-    if(!user){
-      res.status(400).json({error:"No User Found"})
-    }
-    const savedPass = user.savedPassword.map((item: any) => ({
+    const savedPasswords = await findPasswordsByUserId(userId);
+
+    const savedPass = savedPasswords ? savedPasswords.savedPassword.map((item: any) => ({
       userName: item.userName,
       appName: item.appName,
-      password: item.password
-    }));
+      password: item.password,
+    })) : [];
 
-    res.status(200).json(savedPass);
-  }catch(error){
-    console.log(error)
-    res.status(400).json({error:"Internal server error"})
+    return res.status(200).json(savedPass);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Internal server error" });
   }
-}
+};

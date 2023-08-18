@@ -3,14 +3,14 @@ import Password, { IPassword, ISavedPassword } from "../../models/passwordSchema
 import passwordSchema from "../../models/passwordSchema/passwordSchema";
 
 
-export const findOne = async (email: string) => {
+export const findOne = async (email: string):Promise<IUser> => {
     try {
-        const user = await userSchema.findOne({ email });
+       const user =  await userSchema.findOne({ email });
         return user;
     } catch (error) {
-        throw new Error("Failed to find user by email");
-    }
+        console.log(error)
 };
+}
 
 export const create = async (userData: IUser) => {
     try {
@@ -25,28 +25,28 @@ export const create = async (userData: IUser) => {
 export const UserFindById = async (userId: string) => {
     try {
       const user = await userSchema.findById(userId);
+  
       return user;
     } catch (error) {
       throw new Error('Failed to find user by ID');
     }
   };
 
-export const PasswordFindById = async (userId:string) =>{
-  try{
-    console.log(userId)
-    const user = await passwordSchema.findOne({userId:userId})
-    console.log(user,"<<<<<<<")
-    return user;
-  }catch(error){
-    throw new Error('Failed to find user by ID');
-  }
-}
-
+  export const findPasswordsByUserId = async (userId: string): Promise<IPassword | null> => {
+    try {
+      const passwords = await Password.findOne({ userId });
+  
+      return passwords;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  };
 
 
   export const savePassword = async (userId: string, savedPasswordData: ISavedPassword) => {
     try {
-        console.log(4)
+  
         let password = await passwordSchema.findOne({ userId: userId });
 
         if (!password) {
