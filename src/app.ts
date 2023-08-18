@@ -11,7 +11,7 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: ['http://localhost:5173','passcrafter-x.netlify.app', "*"]
+    origin: ['http://localhost:5173','https://passcrafter-x.netlify.app', "*"]
 
   })
 );
