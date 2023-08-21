@@ -44,6 +44,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
 
 export const userLogin = async (req: Request, res: Response) => {
+  console.log("on controller")
   const { email, password }: IUser = req.body;
   try {
     const existingUser = await findOne(email);

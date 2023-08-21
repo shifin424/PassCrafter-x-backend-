@@ -3,6 +3,7 @@ import {registerUser,userLogin,savedPassword,fetchSavedData} from '../../control
 import verifyUserToken from '../../middlewares/authorisation/authorisation'
 
 const router = express.Router()
+console.log("Request in routes");
 
 router.post('/sign-up',registerUser)
 
