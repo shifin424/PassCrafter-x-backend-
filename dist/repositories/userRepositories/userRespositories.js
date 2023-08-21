@@ -3,17 +3,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.savePassword = exports.PasswordFindById = exports.UserFindById = exports.create = exports.findOne = void 0;
+exports.savePassword = exports.findPasswordsByUserId = exports.UserFindById = exports.create = exports.findOne = void 0;
 const userSchema_1 = __importDefault(require("../../models/userSchema/userSchema"));
 const passwordSchema_1 = __importDefault(require("../../models/passwordSchema/passwordSchema"));
+const passwordSchema_2 = __importDefault(require("../../models/passwordSchema/passwordSchema"));
 const findOne = async (email) => {
     try {
         const user = await userSchema_1.default.findOne({ email });
         return user;
     }
     catch (error) {
-        throw new Error("Failed to find user by email");
+        console.log(error);
     }
+    ;
 };
 exports.findOne = findOne;
 const create = async (userData) => {
@@ -37,24 +39,22 @@ const UserFindById = async (userId) => {
     }
 };
 exports.UserFindById = UserFindById;
-const PasswordFindById = async (userId) => {
+const findPasswordsByUserId = async (userId) => {
     try {
-        console.log(userId);
-        const user = await passwordSchema_1.default.findOne({ userId: userId });
-        console.log(user, "<<<<<<<");
-        return user;
+        const passwords = await passwordSchema_1.default.findOne({ userId });
+        return passwords;
     }
     catch (error) {
-        throw new Error('Failed to find user by ID');
+        console.log(error);
+        return null;
     }
 };
-exports.PasswordFindById = PasswordFindById;
+exports.findPasswordsByUserId = findPasswordsByUserId;
 const savePassword = async (userId, savedPasswordData) => {
     try {
-        console.log(4);
-        let password = await passwordSchema_1.default.findOne({ userId: userId });
+        let password = await passwordSchema_2.default.findOne({ userId: userId });
         if (!password) {
-            password = await passwordSchema_1.default.create({
+            password = await passwordSchema_2.default.create({
                 userId,
                 savedPassword: [savedPasswordData],
             });

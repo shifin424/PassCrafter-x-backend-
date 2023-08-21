@@ -32,9 +32,11 @@ const registerUser = async (req, res) => {
 };
 exports.registerUser = registerUser;
 const userLogin = async (req, res) => {
+    console.log("on controller");
     const { email, password } = req.body;
     try {
         const existingUser = await (0, userRespositories_1.findOne)(email);
+        console.log(existingUser);
         if (!existingUser) {
             return res.status(400).json({ error: "Email does not exist" });
         }
@@ -61,14 +63,12 @@ const savedPassword = async (req, res) => {
         if (!user) {
             res.status(400).json({ error: "No User Found" });
         }
-        console.log(2);
         const savedPasswordData = {
             appName,
             userName,
             password,
         };
         await (0, userRespositories_1.savePassword)(userId, savedPasswordData);
-        console.log(3);
         res.status(201).json({ message: 'Saved password successfully' });
     }
     catch (error) {
@@ -80,21 +80,17 @@ exports.savedPassword = savedPassword;
 const fetchSavedData = async (req, res) => {
     try {
         const userId = req.user.userId;
-        console.log(userId);
-        const user = await (0, userRespositories_1.PasswordFindById)(userId);
-        if (!user) {
-            res.status(400).json({ error: "No User Found" });
-        }
-        const savedPass = user.savedPassword.map((item) => ({
+        const savedPasswords = await (0, userRespositories_1.findPasswordsByUserId)(userId);
+        const savedPass = savedPasswords ? savedPasswords.savedPassword.map((item) => ({
             userName: item.userName,
             appName: item.appName,
-            password: item.password
-        }));
-        res.status(200).json(savedPass);
+            password: item.password,
+        })) : [];
+        return res.status(200).json(savedPass);
     }
     catch (error) {
         console.log(error);
-        res.status(400).json({ error: "Internal server error" });
+        return res.status(500).json({ error: "Internal server error" });
     }
 };
 exports.fetchSavedData = fetchSavedData;
