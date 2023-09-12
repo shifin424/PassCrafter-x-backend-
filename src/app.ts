@@ -11,7 +11,7 @@ console.log("Reached to server")
 app.use(
   cors({
     credentials: true,
-    origin: ['http://localhost:5173','https://passcrafter-x.netlify.app' , "https://passcrafter-x.netlify.app"]
+    origin: ['http://localhost:5173','https://passcrafter-x.netlify.app' , "https://passcrafter-x.netlify.app" ,"https://passxgen.netlify.app"]
   })
 );
 // app.options('*', cors());
